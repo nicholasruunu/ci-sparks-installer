@@ -1,0 +1,41 @@
+#!/Applications/MAMP/bin/php5.3/bin/php
+<?php
+/**
+ * This is a php-script for automaticly building a new project with
+ * the latest Codeigniter and Sparks versions installed
+ *
+ * @author Nicholas Ruunu
+ * @web http://ruu.nu
+ */
+
+$project_folder = $argv[1] . '/';
+$ci_path = '/codeigniter';
+
+if( ! file_exists($ci_path))
+{
+	fwrite(STDOUT, "Codeigniter repo not found in $ci_path, downloading Codeiginter ...\n");
+	shell_exec("mkdir $ci_path && cd $ci_path && git clone git://github.com/EllisLab/CodeIgniter.git ./");
+}
+else
+{
+	fwrite(STDOUT, "Updating the Codeigniter repo ...\n");
+	shell_exec("cd $ci_path && git pull");	
+}
+
+fwrite(STDOUT, "Copying the repo from $ci_path to $project_folder\n");
+shell_exec("cp -R $ci_path $project_folder");
+
+fwrite(STDOUT, "Tidying up $project_folder and adding assets folders\n");
+shell_exec("cd $project_folder && rm -rf user_guide readme.md license.txt && mkdir assets && cd assets && mkdir js css");
+
+fwrite(STDOUT, "\nDo you want to install Sparks? (Y/N): ");
+$answer = strtoupper(trim(fgets(STDIN)));
+
+if($answer == 'Y')
+{
+	fwrite(STDOUT, "\nDownloading Sparks ...\n");
+	shell_exec('cd '. $project_folder .' && php -r "$(curl -fsSL http://getsparks.org/go-sparks)"');
+}
+
+fwrite(STDOUT, "Done!");
+shell_exec("cd $project_folder");
